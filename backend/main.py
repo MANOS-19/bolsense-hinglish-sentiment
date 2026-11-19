@@ -1,4 +1,3 @@
-
 import os
 import logging
 from functools import lru_cache
@@ -27,36 +26,48 @@ app = FastAPI(
 )
 
 
-# CORS configuration
-FRONTEND_URL = os.getenv("FRONTEND_URL", "").strip().rstrip("/")
+# =====================================
+# CORS CONFIGURATION
+# =====================================
+
+FRONTEND_URL = os.getenv(
+    "FRONTEND_URL",
+    "https://bolsense-frontend.onrender.com"
+).strip().rstrip("/")
 
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:5174",
+    "https://bolsense-frontend.onrender.com",
 ]
 
-if FRONTEND_URL:
+if FRONTEND_URL not in ALLOWED_ORIGINS:
     ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 
-# Register CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
-# Request validation
+# =====================================
+# REQUEST VALIDATION
+# =====================================
+
 class AnalyzeRequest(BaseModel):
     text: str = Field(min_length=2, max_length=2000)
 
 
-# Load model only when required
+# =====================================
+# LOAD SENTIMENT MODEL
+# =====================================
+
 @lru_cache(maxsize=1)
 def get_classifier():
 
@@ -69,7 +80,25 @@ def get_classifier():
     )
 
 
-# Health check endpoint
+# =====================================
+# ROOT ENDPOINT
+# =====================================
+
+@app.get("/")
+def root():
+
+    return {
+        "status": "running",
+        "message": "Welcome to Hinglish Sentiment API",
+        "health": "/api/health",
+        "analyze": "/api/analyze"
+    }
+
+
+# =====================================
+# HEALTH CHECK
+# =====================================
+
 @app.get("/api/health")
 def health():
 
@@ -80,7 +109,10 @@ def health():
     }
 
 
-# Sentiment analysis endpoint
+# =====================================
+# SENTIMENT ANALYSIS
+# =====================================
+
 @app.post("/api/analyze")
 def analyze(payload: AnalyzeRequest):
 
@@ -103,6 +135,7 @@ def analyze(payload: AnalyzeRequest):
 
         raw = str(result["label"]).lower()
 
+        # Sentiment classification
         if "positive" in raw or raw in ("label_2", "2"):
 
             sentiment: Literal[
