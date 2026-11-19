@@ -2,7 +2,7 @@ import React,{ useState } from "react";
 import { ArrowUpRight, BrainCircuit, Sparkles, RotateCcw, Clipboard, Check, LoaderCircle, MessageCircle, Languages } from "lucide-react";
 import "./style.css";
 
-const API = "http://localhost:8000";
+const API = (import.meta.env.VITE_API_URL || "http://localhost:8000").replace(/\/$/, "");
 const examples = [
   "Yeh movie bahut achi hai, I really loved it!",
   "Mujhe yeh service bilkul pasand nahi aayi.",
