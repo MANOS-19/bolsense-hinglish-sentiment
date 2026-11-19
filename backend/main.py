@@ -9,20 +9,33 @@ from pydantic import BaseModel, Field
 from transformers import pipeline
 
 
-# Logging configuration
+# =====================================
+# LOGGING CONFIGURATION
+# =====================================
+
 logging.basicConfig(level=logging.INFO)
+
 logger = logging.getLogger("hinglish-sentiment")
 
 
-# Model configuration
+# =====================================
+# MODEL CONFIGURATION
+# =====================================
+
 MODEL_NAME = "airzipm/sentiment-analysis-muril-v2"
 
 
-# FastAPI application
+# =====================================
+# FASTAPI APPLICATION
+# =====================================
+
 app = FastAPI(
     title="Hinglish Sentiment API",
     version="1.0.0",
-    description="Multilingual sentiment analysis API for Hindi, English and Hinglish text."
+    description=(
+        "Multilingual sentiment analysis API "
+        "for Hindi, English and Hinglish text."
+    )
 )
 
 
@@ -35,6 +48,7 @@ FRONTEND_URL = os.getenv(
     "https://bolsense-frontend.onrender.com"
 ).strip().rstrip("/")
 
+
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://localhost:5174",
@@ -43,17 +57,20 @@ ALLOWED_ORIGINS = [
     "https://bolsense-frontend.onrender.com",
 ]
 
-if FRONTEND_URL not in ALLOWED_ORIGINS:
+if FRONTEND_URL and FRONTEND_URL not in ALLOWED_ORIGINS:
     ALLOWED_ORIGINS.append(FRONTEND_URL)
 
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=ALLOWED_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
+
+
+logger.info("Allowed frontend origins: %s", ALLOWED_ORIGINS)
 
 
 # =====================================
@@ -61,7 +78,11 @@ app.add_middleware(
 # =====================================
 
 class AnalyzeRequest(BaseModel):
-    text: str = Field(min_length=2, max_length=2000)
+
+    text: str = Field(
+        min_length=2,
+        max_length=2000
+    )
 
 
 # =====================================
@@ -71,7 +92,10 @@ class AnalyzeRequest(BaseModel):
 @lru_cache(maxsize=1)
 def get_classifier():
 
-    logger.info("Loading sentiment model: %s", MODEL_NAME)
+    logger.info(
+        "Loading sentiment model: %s",
+        MODEL_NAME
+    )
 
     return pipeline(
         "sentiment-analysis",
@@ -119,6 +143,7 @@ def analyze(payload: AnalyzeRequest):
     text = payload.text.strip()
 
     if len(text) < 2:
+
         raise HTTPException(
             status_code=400,
             detail="Please enter at least two characters."
@@ -126,8 +151,10 @@ def analyze(payload: AnalyzeRequest):
 
     try:
 
+        # Load the model
         classifier = get_classifier()
 
+        # Predict sentiment
         result = classifier(
             text[:2000],
             truncation=True
@@ -139,7 +166,9 @@ def analyze(payload: AnalyzeRequest):
         if "positive" in raw or raw in ("label_2", "2"):
 
             sentiment: Literal[
-                "Positive", "Negative", "Neutral"
+                "Positive",
+                "Negative",
+                "Neutral"
             ] = "Positive"
 
         elif "negative" in raw or raw in ("label_0", "0"):
@@ -150,12 +179,14 @@ def analyze(payload: AnalyzeRequest):
 
             sentiment = "Neutral"
 
+        # API response
         return {
             "text": text,
             "sentiment": sentiment,
             "raw_label": result["label"],
             "confidence": round(
-                float(result["score"]) * 100, 2
+                float(result["score"]) * 100,
+                2
             ),
             "label_mapping": classifier.model.config.id2label,
             "model": MODEL_NAME,
