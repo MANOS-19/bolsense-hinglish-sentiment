@@ -37,16 +37,13 @@ GITHUB_RELEASE_URL = (
     "bolsense-hinglish-sentiment/releases/download/v1.0.0"
 )
 
-MODEL_FILENAME = "model_last6_int8.onnx"
+MODEL_FILENAME = "model_last4_int8.onnx"
 TOKENIZER_FILENAME = "tokenizer.json"
 
 MODEL_URL = f"{GITHUB_RELEASE_URL}/{MODEL_FILENAME}"
 TOKENIZER_URL = f"{GITHUB_RELEASE_URL}/{TOKENIZER_FILENAME}"
 
-MODEL_SHA256 = (
-    "fe44b8a5935b1c4234f396be5ac4a3ab"
-    "4fb448a9369c46a3a1418c3898b1668a"
-)
+MODEL_SHA256 = "24a7b6980f783604697e0d01a44b4b3d03636c67930d8444edec9fca7a63995"
 
 LABEL_MAPPING = {
     0: "Negative",
