@@ -1,5 +1,6 @@
 # Python
 venv/
+.venv-onnx/
 __pycache__/
 *.pyc
 .env
@@ -10,3 +11,16 @@ dist/
 
 # IDE
 .vscode/
+
+# ONNX experimental models and local model files
+backend/onnx_model/
+
+# Python experiment scripts
+backend/benchmark_onnx.py
+backend/calibration_data.csv
+backend/compare_*.py
+backend/convert_fp16.py
+backend/inspect_*.py
+backend/list_matmul_nodes.py
+backend/quantize_*.py
+backend/test_*.py
