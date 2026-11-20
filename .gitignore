@@ -24,3 +24,36 @@ backend/inspect_*.py
 backend/list_matmul_nodes.py
 backend/quantize_*.py
 backend/test_*.py
+
+
+# Experimental model files
+backend/candidate_model/
+backend/sentiment_model.joblib
+backend/sentiment_model_v2.joblib
+
+# Training datasets
+backend/training_data/
+
+# Experimental files
+backend/candidate_comparison.csv
+backend/distillation_dataset.csv
+backend/everyday_test.csv
+backend/pip install datasets.py
+
+# Local experiment scripts
+backend/check_data.py
+backend/evaluate_everyday.py
+backend/everyday_test.py
+backend/generate_teacher_labels.py
+backend/measure_memory.py
+backend/measure_model.py
+backend/measure_model_v3.py
+backend/test_candidate.py
+backend/compare_candidate.py
+backend/train_model.py
+backend/train_model_v2.py
+backend/train_model_v3.py
+
+# Backup archives
+backend.zip
+frontend.zip
